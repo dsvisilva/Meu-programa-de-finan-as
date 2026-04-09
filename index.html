@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3b82f6">
 
-  <!-- iOS (iPhone/iPad) -->
+  <!-- iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Finanças">
@@ -19,37 +19,44 @@
 </head>
 <body>
 
-<!-- ─── Header ─────────────────────────────────────────────────────────── -->
+<!-- ─── Header ──────────────────────────────────────────────────────────────── -->
 <div class="header">
-  <div class="logo">
-    <span>💰</span> MinhasFinanças
-  </div>
+  <div class="logo"><span>💰</span> MinhasFinanças</div>
   <div class="header-actions">
-    <div class="sync-status" onclick="openSyncSettings()" title="Configurações de sincronização" style="cursor:pointer">
+    <div class="sync-status" onclick="openSyncSettings()" title="Sincronização">
       <div class="sync-dot" id="syncDot"></div>
       <span id="syncText">Conectando...</span>
     </div>
-    <button class="icon-btn" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+    <button class="icon-btn" onclick="toggleTheme()" title="Tema">🌙</button>
   </div>
 </div>
 
-<!-- ─── Nav ────────────────────────────────────────────────────────────── -->
+<!-- ─── Nav ─────────────────────────────────────────────────────────────────── -->
 <div class="nav">
-  <div class="nav-item active" onclick="showTab('dashboard', this)">📊 Visão Geral</div>
-  <div class="nav-item" onclick="showTab('transactions', this)">💳 Transações</div>
-  <div class="nav-item" onclick="showTab('budgets', this)">🎯 Orçamentos</div>
+  <div class="nav-item active" onclick="showTab('dashboard',this)">📊 Visão Geral</div>
+  <div class="nav-item" onclick="showTab('transactions',this)">💳 Transações</div>
+  <div class="nav-item" onclick="showTab('budgets',this)">🎯 Orçamentos</div>
+  <div class="nav-item" onclick="showTab('goals',this)">🏆 Metas</div>
+  <div class="nav-item" onclick="showTab('config',this)">⚙️ Config</div>
 </div>
 
-<!-- ─── Conteúdo principal ──────────────────────────────────────────────── -->
+<!-- ─── Conteúdo principal ───────────────────────────────────────────────────── -->
 <div class="main">
 
-  <!-- Dashboard -->
+  <!-- ── Dashboard ── -->
   <div id="tab-dashboard">
     <div class="summary-grid" id="summaryCards"></div>
 
+    <div class="section" id="comparisonSection">
+      <div class="section-header">
+        <span class="section-title">Comparação mensal</span>
+      </div>
+      <div id="comparisonBody"></div>
+    </div>
+
     <div class="section">
       <div class="section-header">
-        <span class="section-title">Receitas e Despesas (últimos meses)</span>
+        <span class="section-title">Receitas e Despesas (últimos 6 meses)</span>
       </div>
       <div class="bar-chart" id="monthlyChart"></div>
     </div>
@@ -63,12 +70,15 @@
     </div>
   </div>
 
-  <!-- Transações -->
+  <!-- ── Transações ── -->
   <div id="tab-transactions" style="display:none">
     <div class="section">
       <div class="section-header">
         <span class="section-title">Todas as transações</span>
-        <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Adicionar</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()" title="Exportar CSV">⬇ CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Adicionar</button>
+        </div>
       </div>
       <div class="filter-bar">
         <select id="filterType" onchange="renderTransactions()">
@@ -87,20 +97,76 @@
     </div>
   </div>
 
-  <!-- Orçamentos -->
+  <!-- ── Orçamentos ── -->
   <div id="tab-budgets" style="display:none">
     <div class="section">
       <div class="section-header">
         <span class="section-title">Orçamentos por categoria</span>
-        <button class="btn btn-primary btn-sm" onclick="openBudgetModal()">+ Definir orçamento</button>
+        <button class="btn btn-primary btn-sm" onclick="openBudgetModal()">+ Definir</button>
+      </div>
+      <div class="alert-threshold-bar">
+        <span>Alertar ao atingir</span>
+        <select id="alertThresholdSelect" onchange="saveAlertThreshold()">
+          <option value="50">50%</option>
+          <option value="70">70%</option>
+          <option value="80" selected>80%</option>
+          <option value="90">90%</option>
+        </select>
+        <span>do limite</span>
       </div>
       <div id="budgetList"></div>
     </div>
   </div>
 
-</div>
+  <!-- ── Metas ── -->
+  <div id="tab-goals" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Metas financeiras</span>
+        <button class="btn btn-primary btn-sm" onclick="openGoalModal()">+ Nova meta</button>
+      </div>
+      <div id="goalList"></div>
+    </div>
+  </div>
 
-<!-- ─── Modal: nova transação ───────────────────────────────────────────── -->
+  <!-- ── Config ── -->
+  <div id="tab-config" style="display:none">
+
+    <!-- Transações recorrentes -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🔁 Transações recorrentes</span>
+        <button class="btn btn-primary btn-sm" onclick="openRecurringModal()">+ Adicionar</button>
+      </div>
+      <div id="recurringList"></div>
+    </div>
+
+    <!-- Categorias personalizadas -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🏷️ Categorias de Receita</span>
+        <button class="btn btn-primary btn-sm" onclick="openCategoryModal('income')">+ Nova</button>
+      </div>
+      <div id="catIncomeList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">🏷️ Categorias de Despesa</span>
+        <button class="btn btn-primary btn-sm" onclick="openCategoryModal('expense')">+ Nova</button>
+      </div>
+      <div id="catExpenseList"></div>
+    </div>
+
+  </div>
+
+</div><!-- .main -->
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     MODAIS
+══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ─── Nova transação ──────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <div class="modal-header">
@@ -111,27 +177,25 @@
       <div class="field">
         <label>Tipo</label>
         <div class="type-toggle">
-          <button class="type-btn active-income" id="btn-income" onclick="setType('income')">+ Receita</button>
-          <button class="type-btn" id="btn-expense" onclick="setType('expense')">− Despesa</button>
+          <button class="type-btn active-income" id="btn-income"  onclick="setType('income')">+ Receita</button>
+          <button class="type-btn"               id="btn-expense" onclick="setType('expense')">− Despesa</button>
         </div>
       </div>
       <div class="field">
         <label>Descrição</label>
-        <input type="text" id="tx-desc" placeholder="Ex: Salário, Mercado..." />
+        <input type="text" id="tx-desc" placeholder="Ex: Salário, Mercado...">
       </div>
       <div class="field">
         <label>Valor (R$)</label>
-        <input type="number" id="tx-amount" placeholder="0,00" step="0.01" min="0" />
+        <input type="number" id="tx-amount" placeholder="0,00" step="0.01" min="0">
       </div>
       <div class="field">
         <label>Categoria</label>
-        <select id="tx-cat">
-          <option value="">Selecione...</option>
-        </select>
+        <select id="tx-cat"><option value="">Selecione...</option></select>
       </div>
       <div class="field">
         <label>Data</label>
-        <input type="date" id="tx-date" />
+        <input type="date" id="tx-date">
       </div>
     </div>
     <div class="modal-footer">
@@ -141,7 +205,7 @@
   </div>
 </div>
 
-<!-- ─── Modal: orçamento ────────────────────────────────────────────────── -->
+<!-- ─── Orçamento ────────────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="budgetModal">
   <div class="modal">
     <div class="modal-header">
@@ -155,7 +219,7 @@
       </div>
       <div class="field">
         <label>Limite mensal (R$)</label>
-        <input type="number" id="budget-amount" placeholder="0,00" step="0.01" min="0" />
+        <input type="number" id="budget-amount" placeholder="0,00" step="0.01" min="0">
       </div>
     </div>
     <div class="modal-footer">
@@ -165,35 +229,174 @@
   </div>
 </div>
 
-<!-- ─── Modal: configuração Firebase ────────────────────────────────────── -->
+<!-- ─── Meta financeira ──────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="goalModalTitle">Nova meta</span>
+      <button class="icon-btn" onclick="closeModal('goalModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:60px 1fr;gap:10px">
+        <div class="field">
+          <label>Ícone</label>
+          <input type="text" id="goal-icon" placeholder="🎯" maxlength="2" style="text-align:center;font-size:22px">
+        </div>
+        <div class="field">
+          <label>Nome da meta</label>
+          <input type="text" id="goal-name" placeholder="Ex: Viagem, Carro...">
+        </div>
+      </div>
+      <div class="field">
+        <label>Valor da meta (R$)</label>
+        <input type="number" id="goal-target" placeholder="0,00" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label>Valor já guardado (R$)</label>
+        <input type="number" id="goal-saved" placeholder="0,00" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label>Prazo (opcional)</label>
+        <input type="date" id="goal-deadline">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('goalModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGoal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Contribuição para meta ───────────────────────────────────────────────── -->
+<div class="modal-overlay" id="goalContribModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Adicionar à meta</span>
+      <button class="icon-btn" onclick="closeModal('goalContribModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label id="goalContribLabel">Valor a guardar (R$)</label>
+        <input type="number" id="goal-contrib" placeholder="0,00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('goalContribModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="applyGoalContrib()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Transação recorrente ─────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="recurringModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Transação recorrente</span>
+      <button class="icon-btn" onclick="closeModal('recurringModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Tipo</label>
+        <div class="type-toggle">
+          <button class="type-btn active-income" id="rec-btn-income"  onclick="setRecType('income')">+ Receita</button>
+          <button class="type-btn"               id="rec-btn-expense" onclick="setRecType('expense')">− Despesa</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Descrição</label>
+        <input type="text" id="rec-desc" placeholder="Ex: Salário, Netflix...">
+      </div>
+      <div class="field">
+        <label>Valor (R$)</label>
+        <input type="number" id="rec-amount" placeholder="0,00" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label>Categoria</label>
+        <select id="rec-cat"><option value="">Selecione...</option></select>
+      </div>
+      <div class="field">
+        <label>Frequência</label>
+        <select id="rec-freq" onchange="updateRecurringFields()">
+          <option value="monthly">Mensal</option>
+          <option value="weekly">Semanal</option>
+          <option value="yearly">Anual</option>
+        </select>
+      </div>
+      <div class="field" id="rec-day-field">
+        <label id="rec-day-label">Dia do mês</label>
+        <select id="rec-day"></select>
+      </div>
+      <div class="field" id="rec-month-field" style="display:none">
+        <label>Mês</label>
+        <select id="rec-month">
+          <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+          <option value="3">Março</option><option value="4">Abril</option>
+          <option value="5">Maio</option><option value="6">Junho</option>
+          <option value="7">Julho</option><option value="8">Agosto</option>
+          <option value="9">Setembro</option><option value="10">Outubro</option>
+          <option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Data de início</label>
+        <input type="date" id="rec-start">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('recurringModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveRecurring()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Categoria personalizada ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="categoryModalTitle">Nova categoria</span>
+      <button class="icon-btn" onclick="closeModal('categoryModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:60px 1fr;gap:10px">
+        <div class="field">
+          <label>Ícone</label>
+          <input type="text" id="cat-icon" placeholder="📦" maxlength="2" style="text-align:center;font-size:22px">
+        </div>
+        <div class="field">
+          <label>Nome</label>
+          <input type="text" id="cat-name" placeholder="Ex: Pet, Beleza...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('categoryModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCustomCategory()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Setup ────────────────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="setupModal">
   <div class="modal modal-setup">
     <div class="modal-header">
       <span class="modal-title">⚙️ Configurar Sincronização</span>
     </div>
     <div class="modal-body">
-
       <div class="setup-step">
         <div class="setup-step-title">Bem-vindo ao MinhasFinanças! 👋</div>
         <div class="setup-step-desc">
-          Crie uma <strong>chave de sincronização</strong> — pode ser qualquer palavra ou frase.
-          Use a <strong>mesma chave</strong> em todos os seus dispositivos (PC, celular, tablet)
-          para que os dados fiquem sempre sincronizados automaticamente.
+          Crie uma <strong>chave de sincronização</strong> — qualquer palavra ou frase.
+          Use a <strong>mesma chave</strong> em todos os seus dispositivos para sincronizar os dados automaticamente.
         </div>
       </div>
-
       <div class="field">
         <label>Sua chave de sincronização</label>
-        <input type="text" id="setup-key" placeholder="Ex: minhasfinancas2024" autocomplete="off" />
+        <input type="text" id="setup-key" placeholder="Ex: minhasfinancas2024" autocomplete="off">
       </div>
-
-      <div class="setup-step" style="border-left-color: var(--amber)">
-        <div class="setup-step-title" style="color: var(--amber)">⚠️ Guarde bem essa chave!</div>
-        <div class="setup-step-desc">
-          Quem tiver a mesma chave consegue ver seus dados. Use algo pessoal e difícil de adivinhar.
-        </div>
+      <div class="setup-step" style="border-left-color:var(--amber)">
+        <div class="setup-step-title" style="color:var(--amber)">⚠️ Guarde bem essa chave!</div>
+        <div class="setup-step-desc">Quem tiver a mesma chave consegue ver seus dados.</div>
       </div>
-
     </div>
     <div class="modal-footer" style="justify-content:space-between">
       <button class="btn btn-ghost" onclick="closeModal('setupModal')" id="setupCancelBtn" style="display:none">Cancelar</button>
@@ -202,10 +405,10 @@
   </div>
 </div>
 
-<!-- ─── Toast ───────────────────────────────────────────────────────────── -->
+<!-- ─── Toast ────────────────────────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
-<!-- ─── Firebase SDK ─────────────────────────────────────────────────────── -->
+<!-- ─── Firebase SDK ─────────────────────────────────────────────────────────── -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="script.js"></script>
