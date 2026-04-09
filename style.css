@@ -1,0 +1,24 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --border: rgba(0,0,0,0.1);
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --green: #10b981;
+  --green-bg: #ecfdf5;
+  --red: #ef4444;
+  --red-bg: #fef2f2;
+  --blue: #3b82f6;
+  --blue-bg: #eff6ff;
+  --purple: #8b5cf6;
+  --purple-bg: #f5f3ff;
+  --amber: #f59e0b;
+  --amber-bg: #fffbeb;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+/* TODO o resto do CSS exatamente igual */
