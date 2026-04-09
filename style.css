@@ -326,15 +326,49 @@ body {
 .setup-step-desc  { font-size: 13px; color: var(--muted); line-height: 1.5; }
 .setup-step-desc a { color: var(--blue); text-decoration: none; }
 
-/* ── Bar chart ── */
-.bar-chart { padding: 1rem 1.25rem; }
-.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.bar-label { font-size: 12px; color: var(--muted); width: 80px; flex-shrink: 0; text-align: right; }
-.bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-.bar-fill  { height: 100%; border-radius: 4px; transition: width .5s; }
-.bar-fill.income  { background: var(--green); }
-.bar-fill.expense { background: var(--red); }
-.bar-val { font-size: 12px; font-weight: 600; min-width: 70px; }
+/* ── Chart containers ── */
+.chart-wrap {
+  padding: 1.25rem;
+  position: relative;
+}
+.chart-wrap-pie {
+  max-width: 280px;
+  margin: 0 auto;
+  padding-bottom: 0.5rem;
+}
+.chart-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.chart-empty .empty-icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ── Pie legend ── */
+.pie-legend {
+  padding: 0 1.25rem 1rem;
+}
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.pie-legend-item:last-child { border-bottom: none; }
+.pie-legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pie-legend-label { flex: 1; color: var(--text); }
+.pie-legend-val   { font-weight: 600; color: var(--red); }
+.pie-legend-pct   { color: var(--muted); min-width: 36px; text-align: right; }
 
 /* ── Budgets ── */
 .alert-threshold-bar {

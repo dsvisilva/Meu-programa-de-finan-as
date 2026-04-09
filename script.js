@@ -223,15 +223,24 @@ let state = {
   budgetAlertThreshold: 80,
 };
 
-let currentType    = 'income';
-let currentRecType = 'income';
-let editingGoalId  = null;
-let goalContribId  = null;
-let editingCatType = null;
-let db             = null;
-let syncKey        = null;
-let isWriting      = false;
-let syncReady      = false;
+let currentType       = 'income';
+let currentRecType    = 'income';
+let editingGoalId     = null;
+let goalContribId     = null;
+let editingCatType    = null;
+let db                = null;
+let syncKey           = null;
+let isWriting         = false;
+let syncReady         = false;
+let monthlyChartInst  = null;
+let pieChartInst      = null;
+
+// Paleta de cores para o gráfico de categorias
+const PIE_COLORS = [
+  '#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6',
+  '#ec4899','#06b6d4','#84cc16','#f97316','#6366f1',
+  '#14b8a6','#a855f7','#eab308','#64748b','#0ea5e9',
+];
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
 
@@ -354,7 +363,10 @@ function flushToast() {
 
 function toggleTheme() {
   state.theme = state.theme === 'light' ? 'dark' : 'light';
-  applyTheme(); saveData();
+  applyTheme();
+  renderChart();
+  renderPieChart();
+  saveData();
 }
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', state.theme || 'light');
@@ -800,6 +812,7 @@ function renderAll() {
   renderSummary();
   renderComparison();
   renderChart();
+  renderPieChart();
   renderRecent();
 }
 
@@ -893,7 +906,17 @@ function renderComparison() {
     </div>`;
 }
 
-// ── Gráfico de barras ─────────────────────────────────────────────────────────
+// ── Gráfico de barras (Chart.js) ──────────────────────────────────────────────
+
+function chartTextColor() {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue('--muted').trim() || '#6b7280';
+}
+
+function chartGridColor() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+}
 
 function renderChart() {
   const months = {};
@@ -904,29 +927,157 @@ function renderChart() {
   });
   const keys = Object.keys(months).sort().slice(-6);
 
+  const canvas  = document.getElementById('monthlyChart');
+  const emptyEl = document.getElementById('monthlyChartEmpty');
+  if (!canvas || !emptyEl) return;
+
   if (!keys.length) {
-    document.getElementById('monthlyChart').innerHTML =
-      '<div class="empty"><div class="empty-icon">📊</div>Nenhum dado ainda</div>';
+    canvas.style.display  = 'none';
+    emptyEl.style.display = '';
+    if (monthlyChartInst) { monthlyChartInst.destroy(); monthlyChartInst = null; }
     return;
   }
 
-  const maxVal = Math.max(...keys.map(k => Math.max(months[k].income, months[k].expense)), 1);
-  document.getElementById('monthlyChart').innerHTML = keys.map(k => {
-    const label = new Date(k + '-01').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-    const ip = (months[k].income  / maxVal * 100).toFixed(1);
-    const ep = (months[k].expense / maxVal * 100).toFixed(1);
-    return `<div style="margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:500">${label}</div>
-      <div class="bar-row" style="margin-bottom:4px">
-        <div class="bar-label" style="color:var(--green);font-size:11px">Receita</div>
-        <div class="bar-track"><div class="bar-fill income" style="width:${ip}%"></div></div>
-        <div class="bar-val" style="color:var(--green)">${fmt(months[k].income)}</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label" style="color:var(--red);font-size:11px">Despesa</div>
-        <div class="bar-track"><div class="bar-fill expense" style="width:${ep}%"></div></div>
-        <div class="bar-val" style="color:var(--red)">${fmt(months[k].expense)}</div>
-      </div>
+  canvas.style.display  = '';
+  emptyEl.style.display = 'none';
+
+  const labels      = keys.map(k => new Date(k + '-01').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
+  const incomeData  = keys.map(k => months[k].income);
+  const expenseData = keys.map(k => months[k].expense);
+  const textColor   = chartTextColor();
+  const gridColor   = chartGridColor();
+
+  if (monthlyChartInst) { monthlyChartInst.destroy(); monthlyChartInst = null; }
+
+  monthlyChartInst = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Receitas',
+          data: incomeData,
+          backgroundColor: 'rgba(16,185,129,0.75)',
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+        {
+          label: 'Despesas',
+          data: expenseData,
+          backgroundColor: 'rgba(239,68,68,0.75)',
+          borderColor: '#ef4444',
+          borderWidth: 1,
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: textColor, font: { size: 12 }, padding: 16 },
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks:  { color: textColor, font: { size: 11 } },
+          grid:   { color: gridColor },
+        },
+        y: {
+          ticks: {
+            color: textColor, font: { size: 11 },
+            callback: v => 'R$ ' + v.toLocaleString('pt-BR'),
+          },
+          grid: { color: gridColor },
+        },
+      },
+    },
+  });
+}
+
+// ── Gráfico de rosca — gastos por categoria ────────────────────────────────────
+
+function renderPieChart() {
+  const now       = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  const catTotals = {};
+  (state.transactions || [])
+    .filter(t => t.type === 'expense' && t.date.startsWith(thisMonth))
+    .forEach(t => { catTotals[t.cat] = (catTotals[t.cat] || 0) + t.amount; });
+
+  const canvas   = document.getElementById('pieChart');
+  const emptyEl  = document.getElementById('pieChartEmpty');
+  const legendEl = document.getElementById('pieLegend');
+  if (!canvas || !emptyEl || !legendEl) return;
+
+  const entries = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+
+  if (!entries.length) {
+    canvas.style.display  = 'none';
+    emptyEl.style.display = '';
+    legendEl.innerHTML    = '';
+    if (pieChartInst) { pieChartInst.destroy(); pieChartInst = null; }
+    return;
+  }
+
+  canvas.style.display  = '';
+  emptyEl.style.display = 'none';
+
+  const total  = entries.reduce((s, [, v]) => s + v, 0);
+  const labels = entries.map(([cat]) => { const i = getCatInfo(cat); return `${i.icon} ${i.label}`; });
+  const data   = entries.map(([, v]) => v);
+  const colors = entries.map((_, i) => PIE_COLORS[i % PIE_COLORS.length]);
+  const surfaceColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--surface').trim() || '#ffffff';
+
+  if (pieChartInst) { pieChartInst.destroy(); pieChartInst = null; }
+
+  pieChartInst = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: surfaceColor,
+        hoverOffset: 10,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '62%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} (${(ctx.raw / total * 100).toFixed(1)}%)`,
+          },
+        },
+      },
+    },
+  });
+
+  // Legenda customizada
+  legendEl.innerHTML = entries.map(([cat, val], i) => {
+    const info = getCatInfo(cat);
+    return `<div class="pie-legend-item">
+      <span class="pie-legend-dot" style="background:${colors[i]}"></span>
+      <span class="pie-legend-label">${info.icon} ${info.label}</span>
+      <span class="pie-legend-val">${fmt(val)}</span>
+      <span class="pie-legend-pct">${(val / total * 100).toFixed(0)}%</span>
     </div>`;
   }).join('');
 }
