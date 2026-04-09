@@ -1,6 +1,6 @@
 {
-  "name": "MinhasFinanças",
-  "short_name": "Finanças",
+  "name": "GiWallet",
+  "short_name": "GiWallet",
   "description": "Controle suas finanças pessoais com sincronização em tempo real",
   "start_url": "./",
   "scope": "./",

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'financas-v1';
+const CACHE_NAME = 'giwallet-v2'; // versão atualizada — força limpeza do cache antigo
 
 const ASSETS = [
   './',
