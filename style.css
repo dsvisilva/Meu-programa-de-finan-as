@@ -312,7 +312,7 @@ body {
   width: 40px; height: 40px;
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; color: var(--text);
+  font-size: 17px; flex-shrink: 0;
 }
 .tx-info { flex: 1; min-width: 0; }
 .tx-desc {
@@ -494,7 +494,7 @@ body {
   width: 44px; height: 44px; border-radius: 14px;
   background: var(--blue-bg);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; color: var(--blue);
+  font-size: 20px; flex-shrink: 0;
 }
 .goal-info { flex: 1; min-width: 0; }
 .goal-name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
@@ -609,19 +609,6 @@ body {
   font-size: 14px; display: flex; flex-direction: column; align-items: center;
 }
 .empty svg { margin-bottom: 10px; }
-.empty-icon { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: var(--surface2); border-radius: 16px; margin-bottom: 12px; color: var(--muted); }
-
-/* ── Icon Picker ── */
-.icon-picker { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
-.icon-option {
-  width: 42px; height: 42px; border-radius: 10px;
-  border: 2px solid var(--border); background: var(--surface);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--muted); padding: 0;
-  transition: border-color .15s, background .15s, color .15s;
-}
-.icon-option:hover { border-color: var(--blue); color: var(--blue); }
-.icon-option.active { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
 
 /* ── Toast ── */
 .toast {
@@ -894,10 +881,8 @@ body {
 .account-card:active { transform: scale(.96); }
 
 .account-card-icon {
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 4px;
-  color: var(--blue);
+  font-size: 26px;
+  margin-bottom: 4px;
 }
 .account-card-name {
   font-size: 12px;
@@ -954,7 +939,7 @@ body {
 .projection-sub    { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
 .proj-income       { font-size: 11px; color: var(--green); font-weight: 600; }
 .proj-expense      { font-size: 11px; color: var(--red);   font-weight: 600; }
-.projection-icon   { display:flex; align-items:center; color: var(--blue); }
+.projection-icon   { font-size: 32px; }
 
 /* ══════════════════════════════════════════════════════════════════════════════
    INSIGHTS
@@ -969,7 +954,7 @@ body {
   border-radius: var(--radius-sm);
   padding: 12px 14px;
 }
-.insight-icon  { display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px; margin-bottom: 8px; }
+.insight-icon  { font-size: 20px; margin-bottom: 6px; }
 .insight-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
 .insight-value { font-size: 16px; font-weight: 800; color: var(--text); }
 .insight-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

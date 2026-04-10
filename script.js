@@ -106,7 +106,7 @@ function sendReset() {
   const email = document.getElementById('reset-email').value.trim();
   if (!email) { showResetMsg('Digite seu email.', true); return; }
   auth.sendPasswordResetEmail(email)
-    .then(() => showResetMsg('Email enviado! Verifique sua caixa de entrada.', false))
+    .then(() => showResetMsg('✅ Email enviado! Verifique sua caixa de entrada.', false))
     .catch(e => showResetMsg(firebaseAuthError(e.code), true));
 }
 
@@ -191,22 +191,22 @@ const FIREBASE_CONFIG = {
 
 const DEFAULT_CATEGORIES = {
   income: [
-    { id: 'salario',      label: 'Salário',           icon: 'briefcase', isDefault: true },
-    { id: 'freelance',    label: 'Freelance',          icon: 'monitor', isDefault: true },
-    { id: 'investimento', label: 'Investimento',       icon: 'trending-up', isDefault: true },
-    { id: 'aluguel_rec',  label: 'Aluguel recebido',   icon: 'home', isDefault: true },
-    { id: 'outros_rec',   label: 'Outros',             icon: 'star', isDefault: true },
+    { id: 'salario',      label: 'Salário',           icon: '💼', isDefault: true },
+    { id: 'freelance',    label: 'Freelance',          icon: '💻', isDefault: true },
+    { id: 'investimento', label: 'Investimento',       icon: '📈', isDefault: true },
+    { id: 'aluguel_rec',  label: 'Aluguel recebido',   icon: '🏠', isDefault: true },
+    { id: 'outros_rec',   label: 'Outros',             icon: '✨', isDefault: true },
   ],
   expense: [
-    { id: 'moradia',      label: 'Moradia',            icon: 'home', isDefault: true },
-    { id: 'alimentacao',  label: 'Alimentação',        icon: 'utensils', isDefault: true },
-    { id: 'transporte',   label: 'Transporte',         icon: 'car', isDefault: true },
-    { id: 'saude',        label: 'Saúde',              icon: 'heart', isDefault: true },
-    { id: 'lazer',        label: 'Lazer',              icon: 'gamepad', isDefault: true },
-    { id: 'educacao',     label: 'Educação',           icon: 'book', isDefault: true },
-    { id: 'vestuario',    label: 'Vestuário',          icon: 'tag', isDefault: true },
-    { id: 'streaming',    label: 'Streaming',          icon: 'tv', isDefault: true },
-    { id: 'outros_exp',   label: 'Outros',             icon: 'box', isDefault: true },
+    { id: 'moradia',      label: 'Moradia',            icon: '🏠', isDefault: true },
+    { id: 'alimentacao',  label: 'Alimentação',        icon: '🍽️', isDefault: true },
+    { id: 'transporte',   label: 'Transporte',         icon: '🚗', isDefault: true },
+    { id: 'saude',        label: 'Saúde',              icon: '💊', isDefault: true },
+    { id: 'lazer',        label: 'Lazer',              icon: '🎮', isDefault: true },
+    { id: 'educacao',     label: 'Educação',           icon: '📚', isDefault: true },
+    { id: 'vestuario',    label: 'Vestuário',          icon: '👗', isDefault: true },
+    { id: 'streaming',    label: 'Streaming',          icon: '📺', isDefault: true },
+    { id: 'outros_exp',   label: 'Outros',             icon: '📦', isDefault: true },
   ],
 };
 
@@ -247,96 +247,6 @@ let monthlyChartInst  = null;
 let pieChartInst      = null;
 let unsubscribeSync   = null;
 let currentFamilyCode = localStorage.getItem('giwallet_family') || null;
-
-// ══════════════════════════════════════════════════════════════════════════════
-// ÍCONES SVG — biblioteca de ícones Feather/Heroicons
-// ══════════════════════════════════════════════════════════════════════════════
-const ICONS = {
-  briefcase:       ['M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z', 'M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2'],
-  monitor:         ['rect x="2" y="3" width="20" height="14" rx="2"', 'M8 21h8', 'M12 17v4'],
-  'trending-up':   ['M23 6l-9.5 9.5-5-5L1 18'],
-  home:            ['M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z', 'M9 22V12h6v10'],
-  star:            ['M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'],
-  utensils:        ['M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2', 'M7 2v20', 'M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7'],
-  car:             ['M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2', 'circle cx="7" cy="17" r="2"', 'circle cx="17" cy="17" r="2"'],
-  heart:           ['M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'],
-  gamepad:         ['M6 11h4', 'M8 9v4', 'M15 12h.01', 'M18 10h.01', 'M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z'],
-  book:            ['M4 19.5A2.5 2.5 0 0 1 6.5 17H20', 'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'],
-  tag:             ['M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z', 'M7 7h.01'],
-  tv:              ['rect x="2" y="7" width="20" height="15" rx="2"', 'M17 2l-5 5-5-5'],
-  box:             ['M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z', 'M3.27 6.96L12 12.01l8.73-5.05', 'M12 22.08V12'],
-  'map-pin':       ['M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z', 'circle cx="12" cy="10" r="3"'],
-  'credit-card':   ['rect x="1" y="4" width="22" height="16" rx="2" ry="2"', 'M1 10h22'],
-  search:          ['circle cx="11" cy="11" r="8"', 'M21 21l-4.35-4.35'],
-  target:          ['circle cx="12" cy="12" r="10"', 'circle cx="12" cy="12" r="6"', 'circle cx="12" cy="12" r="2"'],
-  award:           ['circle cx="12" cy="8" r="6"', 'M15.477 12.89L17 22l-5-3-5 3 1.523-9.11'],
-  'refresh-cw':    ['M23 4v6h-6', 'M1 20v-6h6', 'M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15'],
-  building:        ['M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z', 'M9 22V12h6v10'],
-  'bar-chart':     ['M18 20V10', 'M12 20V4', 'M6 20v-6'],
-  users:           ['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2', 'circle cx="9" cy="7" r="4"', 'M23 21v-2a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75'],
-  'trending-down': ['M23 18l-9.5-9.5-5 5L1 6'],
-  calendar:        ['rect x="3" y="4" width="18" height="18" rx="2" ry="2"', 'M16 2v4', 'M8 2v4', 'M3 10h18'],
-  'dollar-sign':   ['M12 2v20', 'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'],
-  'piggy-bank':    ['M19 8a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4c0 1.42.74 2.65 1.84 3.37L5 19h14l-1.84-7.63C18.26 10.65 19 9.42 19 8z', 'circle cx="9" cy="8" r="1"'],
-  'alert-triangle':['M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z', 'M12 9v4', 'M12 17h.01'],
-  'check-circle':  ['M22 11.08V12a10 10 0 1 1-5.93-9.14', 'polyline points="22 4 12 14.01 9 11.01"'],
-  'alert-circle':  ['circle cx="12" cy="12" r="10"', 'M12 8v4', 'M12 16h.01'],
-  zap:             ['polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"'],
-  plus:            ['M12 5v14', 'M5 12h14'],
-  wallet:          ['rect x="1" y="4" width="22" height="16" rx="2" ry="2"', 'M16 12h.01'],
-  'shopping-bag':  ['M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z', 'M3 6h18', 'M16 10a4 4 0 0 1-8 0'],
-  music:           ['M9 18V5l12-2v13', 'circle cx="6" cy="18" r="3"', 'circle cx="18" cy="16" r="3"'],
-  scissors:        ['circle cx="6" cy="6" r="3"', 'circle cx="6" cy="18" r="3"', 'M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12'],
-  wifi:            ['M5 12.55a11 11 0 0 1 14.08 0', 'M1.42 9a16 16 0 0 1 21.16 0', 'M8.53 16.11a6 6 0 0 1 6.95 0', 'M12 20h.01'],
-  globe:           ['circle cx="12" cy="12" r="10"', 'M2 12h20', 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'],
-};
-
-const ICON_PICKER_OPTIONS = [
-  'target','home','car','heart','star','book',
-  'briefcase','award','bar-chart','dollar-sign','trending-up','refresh-cw',
-  'shopping-bag','utensils','music','wallet','globe','scissors'
-];
-
-function svgIcon(name, size) {
-  size = size || 18;
-  var paths = ICONS[name];
-  if (!paths) return '';
-  var inner = paths.map(function(p) {
-    if (/^(rect|circle|polyline|polygon|line|ellipse)/.test(p)) {
-      return '<' + p + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    }
-    if (p.startsWith('path ')) {
-      return '<' + p + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    }
-    return '<path d="' + p + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-  }).join('');
-  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
-}
-
-function renderCatIcon(icon) {
-  if (!icon) return svgIcon('map-pin');
-  if (ICONS[icon]) return svgIcon(icon);
-  return icon; // fallback: emoji ou texto legado
-}
-
-function renderIconPicker(pickerId, inputId, selected) {
-  var el = document.getElementById(pickerId);
-  if (!el) return;
-  el.innerHTML = ICON_PICKER_OPTIONS.map(function(name) {
-    var active = name === selected ? ' active' : '';
-    return '<button type="button" class="icon-option' + active + '" onclick="selectIconOption(\'' + pickerId + '\',\'' + inputId + '\',\'' + name + '\')" title="' + name + '">' + svgIcon(name, 20) + '</button>';
-  }).join('');
-}
-
-function selectIconOption(pickerId, inputId, name) {
-  document.getElementById(inputId).value = name;
-  var picker = document.getElementById(pickerId);
-  if (!picker) return;
-  picker.querySelectorAll('.icon-option').forEach(function(b) { b.classList.remove('active'); });
-  ICON_PICKER_OPTIONS.forEach(function(n, idx) {
-    if (n === name) { var btns = picker.querySelectorAll('.icon-option'); if (btns[idx]) btns[idx].classList.add('active'); }
-  });
-}
 
 // Paleta de cores para o gráfico de categorias
 const PIE_COLORS = [
@@ -454,7 +364,7 @@ function getAllCategories() {
 
 function getCatInfo(catId) {
   const all = getAllCategories();
-  return [...all.income, ...all.expense].find(c => c.id === catId) || { label: catId, icon: 'map-pin' };
+  return [...all.income, ...all.expense].find(c => c.id === catId) || { label: catId, icon: '📌' };
 }
 
 function fmt(val) {
@@ -676,7 +586,7 @@ function checkBudgetAlerts() {
     if (spent > limit) {
       showToast(`${info.label}: limite ultrapassado`);
       if (Notification.permission === 'granted') {
-        new Notification('GiWallet — Orçamento ultrapassado! ', {
+        new Notification('GiWallet — Orçamento ultrapassado! 🚨', {
           body: `${info.icon} ${info.label}: ${fmt(spent)} de ${fmt(limit)}`,
           icon: './icon-192.png', tag: 'budget-over-' + cat,
         });
@@ -684,7 +594,7 @@ function checkBudgetAlerts() {
     } else if (pct >= threshold) {
       showToast(`${info.label}: ${pct.toFixed(0)}% do limite`);
       if (Notification.permission === 'granted') {
-        new Notification('GiWallet — Alerta de orçamento', {
+        new Notification('GiWallet — Alerta de orçamento ⚡', {
           body: `${info.icon} ${info.label}: ${pct.toFixed(0)}% do limite`,
           icon: './icon-192.png', tag: 'budget-warn-' + cat,
         });
@@ -736,8 +646,7 @@ function openGoalModal(id = null) {
   editingGoalId = id;
   const goal = id ? (state.goals || []).find(g => g.id === id) : null;
   document.getElementById('goalModalTitle').textContent = id ? 'Editar meta' : 'Nova meta';
-  document.getElementById('goal-icon').value = goal?.icon || 'target';
-  renderIconPicker('goal-icon-picker', 'goal-icon', document.getElementById('goal-icon').value);
+  document.getElementById('goal-icon').value     = goal?.icon    || '🎯';
   document.getElementById('goal-name').value     = goal?.name    || '';
   document.getElementById('goal-target').value   = goal?.target  || '';
   document.getElementById('goal-saved').value    = goal?.saved   || '';
@@ -746,7 +655,7 @@ function openGoalModal(id = null) {
 }
 
 function saveGoal() {
-  const icon = document.getElementById('goal-icon').value.trim() || 'target';
+  const icon     = document.getElementById('goal-icon').value.trim()  || '🎯';
   const name     = document.getElementById('goal-name').value.trim();
   const target   = parseFloat(document.getElementById('goal-target').value);
   const saved    = parseFloat(document.getElementById('goal-saved').value)  || 0;
@@ -792,9 +701,9 @@ function applyGoalContrib() {
   closeModal('goalContribModal');
   saveData(); renderGoals();
   if (goal.saved >= goal.target) {
-    showToast(`Parabéns! Meta "${goal.name}" concluída!`);
+    showToast(`🏆 Parabéns! Meta "${goal.name}" concluída!`);
   } else {
-    showToast(`${fmt(amount)} adicionado à meta!`);
+    showToast(`✅ ${fmt(amount)} adicionado à meta!`);
   }
 }
 
@@ -961,7 +870,7 @@ function openCategoryModal(type) {
 }
 
 function saveCustomCategory() {
-  const icon = document.getElementById('cat-icon').value.trim() || 'map-pin';
+  const icon = document.getElementById('cat-icon').value.trim() || '📌';
   const name = document.getElementById('cat-name').value.trim();
   if (!name) { showToast('Digite o nome da categoria'); return; }
 
@@ -1078,7 +987,7 @@ function renderUpcoming() {
 
     return `<div class="upcoming-item">
       <div class="tx-icon" style="background:${r.type === 'income' ? 'var(--green-bg)' : 'var(--red-bg)'}">
-        ${renderCatIcon(cat.icon)}
+        ${cat.icon}
       </div>
       <div class="upcoming-info">
         <div class="upcoming-desc">${r.desc}</div>
@@ -1124,7 +1033,7 @@ function renderSummary() {
     <div class="summary-card">
       <div class="summary-label">Resultado (${month})</div>
       <div class="summary-value ${balance >= 0 ? 'green' : 'red'}">${fmt(balance)}</div>
-      <div class="summary-sub">${balance >= 0 ? 'Superávit' : 'Déficit'}</div>
+      <div class="summary-sub">${balance >= 0 ? 'Superávit ✓' : 'Déficit ⚠'}</div>
     </div>`;
 }
 
@@ -1311,7 +1220,7 @@ function renderPieChart() {
   emptyEl.style.display = 'none';
 
   const total  = entries.reduce((s, [, v]) => s + v, 0);
-  const labels = entries.map(([cat]) => { const i = getCatInfo(cat); return `${svgIcon(i.icon, 22)} ${i.label}`; });
+  const labels = entries.map(([cat]) => { const i = getCatInfo(cat); return `${i.icon} ${i.label}`; });
   const data   = entries.map(([, v]) => v);
   const colors = entries.map((_, i) => PIE_COLORS[i % PIE_COLORS.length]);
   const surfaceColor = getComputedStyle(document.documentElement)
@@ -1368,7 +1277,7 @@ function txHTML(t) {
     `<span class="tx-tag">${tag}</span>`).join('');
   const note = t.note ? `<div class="tx-note-text">${t.note}</div>` : '';
   return `<li class="tx-item">
-    <div class="tx-icon" style="background:${bg}">${renderCatIcon(cat.icon)}</div>
+    <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
     <div class="tx-info">
       <div class="tx-desc">${t.desc}</div>
       <div class="tx-meta">${cat.label} · ${d}</div>
@@ -1387,7 +1296,7 @@ function renderRecent() {
   const recent = (state.transactions || []).slice(0, 5);
   document.getElementById('recentList').innerHTML = recent.length
     ? recent.map(txHTML).join('')
-    : `<div class="empty"><div class="empty-icon">${svgIcon('credit-card', 36)}</div>Nenhuma transação ainda<br><br>
+    : `<div class="empty"><div class="empty-icon">💳</div>Nenhuma transação ainda<br><br>
        <button class="btn btn-primary" onclick="openAddModal()">Adicionar primeira transação</button></div>`;
 }
 
@@ -1398,7 +1307,7 @@ function populateFilters() {
   const cats = new Set(txs.map(t => t.cat));
   document.getElementById('filterCat').innerHTML =
     '<option value="">Todas as categorias</option>' +
-    [...cats].map(c => { const i = getCatInfo(c); return `<option value="${c}">${svgIcon(i.icon, 22)} ${i.label}</option>`; }).join('');
+    [...cats].map(c => { const i = getCatInfo(c); return `<option value="${c}">${i.icon} ${i.label}</option>`; }).join('');
 
   const months = [...new Set(txs.map(t => t.date.slice(0, 7)))].sort().reverse();
   document.getElementById('filterMonth').innerHTML =
@@ -1430,7 +1339,7 @@ function renderTransactions() {
   if (search) txs = txs.filter(t => t.desc.toLowerCase().includes(search) || getCatInfo(t.cat).label.toLowerCase().includes(search) || (t.note || '').toLowerCase().includes(search));
   document.getElementById('allTxList').innerHTML = txs.length
     ? txs.map(txHTML).join('')
-    : '<div class="empty"><div class="empty-icon">' + svgIcon('search', 36) + '</div>Nenhuma transação encontrada</div>';
+    : '<div class="empty"><div class="empty-icon">🔍</div>Nenhuma transação encontrada</div>';
 }
 
 // ── Orçamentos ────────────────────────────────────────────────────────────────
@@ -1451,7 +1360,7 @@ function renderBudgets() {
   const container = document.getElementById('budgetList');
 
   if (!Object.keys(b).length) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">${svgIcon('target', 36)}</div>Nenhum orçamento definido<br><br>
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🎯</div>Nenhum orçamento definido<br><br>
       <button class="btn btn-primary" onclick="openBudgetModal()">Definir primeiro orçamento</button></div>`;
     return;
   }
@@ -1495,7 +1404,7 @@ function renderGoals() {
   const container = document.getElementById('goalList');
 
   if (!goals.length) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">${svgIcon('award', 36)}</div>Nenhuma meta criada<br><br>
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🏆</div>Nenhuma meta criada<br><br>
       <button class="btn btn-primary" onclick="openGoalModal()">Criar primeira meta</button></div>`;
     return;
   }
@@ -1510,12 +1419,12 @@ function renderGoals() {
     let daysLeft = '';
     if (g.deadline && !done) {
       const diff = Math.ceil((new Date(g.deadline) - new Date()) / 86400000);
-      daysLeft   = diff > 0 ? `${diff} dias restantes` : 'Prazo vencido';
+      daysLeft   = diff > 0 ? `${diff} dias restantes` : '⚠️ Prazo vencido';
     }
 
     return `<div class="goal-item">
       <div class="goal-top">
-        <div class="goal-icon-circle">${renderCatIcon(g.icon || 'target')}</div>
+        <div class="goal-icon-circle">${g.icon || '🎯'}</div>
         <div class="goal-info">
           <div class="goal-name">${g.name}${done ? ' · Concluída' : ''}</div>
           <div class="goal-deadline">${deadline ? `Prazo: ${deadline}` : ''} ${daysLeft ? `· ${daysLeft}` : ''}</div>
@@ -1555,7 +1464,7 @@ function renderRecurringList() {
   const container = document.getElementById('recurringList');
 
   if (!recurring.length) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">${svgIcon('refresh-cw', 36)}</div>Nenhuma transação recorrente<br><br>
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🔁</div>Nenhuma transação recorrente<br><br>
       <button class="btn btn-primary" onclick="openRecurringModal()">Adicionar</button></div>`;
     return;
   }
@@ -1567,7 +1476,7 @@ function renderRecurringList() {
     const color = r.type === 'income' ? 'income' : 'expense';
     return `<div class="recurring-item">
       <div class="tx-icon" style="background:${r.type === 'income' ? 'var(--green-bg)' : 'var(--red-bg)'}">
-        ${renderCatIcon(cat.icon)}
+        ${cat.icon}
       </div>
       <div class="recurring-info">
         <div class="recurring-desc">${r.desc}</div>
@@ -1702,7 +1611,7 @@ function renderProjection() {
         ${pendingExpense > 0 ? `<span class="proj-expense">−${fmt(pendingExpense)} a pagar</span>` : ''}
       </div>` : '<div class="projection-sub" style="color:var(--muted)">Sem recorrentes pendentes</div>'}
     </div>
-    <div class="projection-icon">${projected >= 0 ? svgIcon('trending-up', 32) : svgIcon('trending-down', 32)}</div>`;
+    <div class="projection-icon">${projected >= 0 ? '📈' : '📉'}</div>`;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1755,13 +1664,13 @@ function renderInsights() {
       sub:   fmt(topCat[1]),
     } : null,
     {
-      icon: 'calendar', color: 'var(--blue-bg)',
+      icon: '📅', color: 'var(--blue-bg)',
       label: 'Média diária',
       value: fmt(dailyAvg),
       sub: `${daysElapsed} dias no mês`,
     },
     biggest ? {
-      icon: 'dollar-sign', color: 'var(--amber-bg)',
+      icon: '💸', color: 'var(--amber-bg)',
       label: 'Maior gasto único',
       value: fmt(biggest.amount),
       sub: biggest.desc,
@@ -1774,7 +1683,7 @@ function renderInsights() {
       sub: 'em despesas totais',
     } : null,
     savRate !== null ? {
-      icon: savRate >= 0 ? 'piggy-bank' : 'alert-triangle',
+      icon: savRate >= 0 ? '🐖' : '😬',
       color: savRate >= 20 ? 'var(--green-bg)' : savRate >= 0 ? 'var(--amber-bg)' : 'var(--red-bg)',
       label: 'Taxa de poupança',
       value: savRate.toFixed(1) + '%',
@@ -1784,7 +1693,7 @@ function renderInsights() {
 
   container.innerHTML = `<div class="insights-grid">${
     insights.map(i => `<div class="insight-card" style="background:${i.color}">
-      <div class="insight-icon">${svgIcon(i.icon, 22)}</div>
+      <div class="insight-icon">${i.icon}</div>
       <div class="insight-label">${i.label}</div>
       <div class="insight-value">${i.value}</div>
       <div class="insight-sub">${i.sub}</div>
@@ -1825,7 +1734,7 @@ function processRollover() {
   });
 
   state.lastRolloverMonth = currM;
-  if (changed) { saveData(); showToast('Saldo rolante atualizado'); }
+  if (changed) { saveData(); showToast('Saldo rolante atualizado 🎉'); }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1945,15 +1854,14 @@ function openAccountModal(id) {
   editingAccountId = id;
   var acc = id ? (state.accounts || []).find(function(a){return a.id===id;}) : null;
   document.getElementById('accountModalTitle').textContent = id ? 'Editar conta' : 'Nova conta';
-  document.getElementById('account-icon').value = acc ? (acc.icon || 'wallet') : 'wallet';
-  renderIconPicker('account-icon-picker', 'account-icon', document.getElementById('account-icon').value);
+  document.getElementById('account-icon').value    = acc ? (acc.icon    || '\u{1F4B3}') : '\u{1F4B3}';
   document.getElementById('account-name').value    = acc ? (acc.name    || '')  : '';
   document.getElementById('account-initial').value = acc ? (acc.initialBalance != null ? acc.initialBalance : '') : '';
   document.getElementById('accountModal').classList.add('open');
 }
 
 function saveAccount() {
-  var icon = document.getElementById('account-icon').value.trim() || 'wallet';
+  var icon    = document.getElementById('account-icon').value.trim()    || '\u{1F4B3}';
   var name    = document.getElementById('account-name').value.trim();
   var initial = parseFloat(document.getElementById('account-initial').value) || 0;
   if (!name) { showToast('Digite o nome da conta'); return; }
@@ -2008,7 +1916,7 @@ function renderAccountsConfig() {
   var container = document.getElementById('accountsConfigList');
   if (!container) return;
   if (!accounts.length) {
-    container.innerHTML = '<div class="empty"><div class="empty-icon">' + svgIcon('building', 36) + '</div>Nenhuma conta cadastrada<br><br><button class="btn btn-primary" onclick="openAccountModal()">Adicionar primeira conta</button></div>';
+    container.innerHTML = '<div class="empty"><div class="empty-icon">\u{1F3E6}</div>Nenhuma conta cadastrada<br><br><button class="btn btn-primary" onclick="openAccountModal()">Adicionar primeira conta</button></div>';
     return;
   }
   container.innerHTML = accounts.map(function(acc) {
@@ -2016,7 +1924,7 @@ function renderAccountsConfig() {
     var expense = (state.transactions||[]).filter(function(t){return t.accountId===acc.id&&t.type==='expense';}).reduce(function(s,t){return s+t.amount;},0);
     var balance = (acc.initialBalance||0)+income-expense;
     var cls     = balance>=0?'income':'expense';
-    return '<div class="recurring-item"><div class="tx-icon" style="background:var(--blue-bg)">'+renderCatIcon(acc.icon)+'</div><div class="recurring-info"><div class="recurring-desc">'+acc.name+'</div><div class="recurring-meta">Saldo: <span class="'+cls+'" style="font-weight:600">'+fmt(balance)+'</span></div></div><button class="btn btn-ghost btn-sm" onclick="openAccountModal(\''+acc.id+'\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="tx-delete" style="opacity:1" onclick="deleteAccount(\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div>';
+    return '<div class="recurring-item"><div class="tx-icon" style="background:var(--blue-bg);font-size:18px">'+acc.icon+'</div><div class="recurring-info"><div class="recurring-desc">'+acc.name+'</div><div class="recurring-meta">Saldo: <span class="'+cls+'" style="font-weight:600">'+fmt(balance)+'</span></div></div><button class="btn btn-ghost btn-sm" onclick="openAccountModal(\''+acc.id+'\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="tx-delete" style="opacity:1" onclick="deleteAccount(\''+acc.id+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button></div>';
   }).join('');
 }
 
@@ -2118,7 +2026,7 @@ function showFirestoreRulesAlert() {
     '<pre id="fsRulesPre" style="background:var(--surface2);border-radius:10px;padding:12px;font-size:11px;overflow-x:auto;white-space:pre-wrap;line-height:1.5"></pre>' +
     '<button class="btn btn-primary btn-full" style="margin-top:14px" onclick="document.getElementById(\'firestoreRulesAlert\').remove()">Entendi</button>' +
     '</div>';
-  div.querySelector('#fsRulesPre').textContent = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /financas/{document} {\n      allow read, write: if request.auth != null;\n    }\n  }\n}";
+  div.querySelector('#fsRulesPre').textContent = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /financas/{document} {\n      allow read, write: if request.auth \!= null;\n    }\n  }\n}";
   document.body.appendChild(div);
 }
 function leaveFamily() {
