@@ -126,7 +126,8 @@ function logout() {
     syncReady = false;
     state     = { transactions: [], budgets: {}, theme: 'light',
                   customCategories: { income: [], expense: [] },
-                  recurringTransactions: [], goals: [], budgetAlertThreshold: 80 };
+                  recurringTransactions: [], goals: [], budgetAlertThreshold: 80,
+                  onboardingDone: false };
     document.getElementById('userMenu').style.display = 'none';
   });
 }
@@ -221,6 +222,7 @@ let state = {
   recurringTransactions: [],
   goals:                [],
   budgetAlertThreshold: 80,
+  onboardingDone:       false,
 };
 
 let currentType       = 'income';
@@ -228,6 +230,7 @@ let currentRecType    = 'income';
 let editingGoalId     = null;
 let goalContribId     = null;
 let editingCatType    = null;
+let editingTxId       = null;
 let db                = null;
 let syncKey           = null;
 let isWriting         = false;
@@ -275,6 +278,8 @@ function startSync() {
     setSyncing(false);
     renderAll();
     processRecurringTransactions();
+    checkOnboarding();
+    requestNotificationPermission();
   }, err => {
     console.error(err);
     setSyncing(false, true);
@@ -302,6 +307,7 @@ function normalizeState(s) {
     recurringTransactions: Array.isArray(s.recurringTransactions) ? s.recurringTransactions : [],
     goals:                 Array.isArray(s.goals) ? s.goals : [],
     budgetAlertThreshold:  s.budgetAlertThreshold || 80,
+    onboardingDone:        s.onboardingDone || false,
   };
 }
 
@@ -443,17 +449,25 @@ function populateCatSelect(selectId, type) {
 
 // ── Transações ────────────────────────────────────────────────────────────────
 
-function openAddModal() {
-  setType('income');
-  document.getElementById('tx-desc').value   = '';
-  document.getElementById('tx-amount').value = '';
-  document.getElementById('tx-date').value   = todayStr();
+function openAddModal(id = null) {
+  editingTxId = id;
+  const tx = id ? (state.transactions || []).find(t => t.id === id) : null;
+
+  setType(tx ? tx.type : 'income');
+  document.getElementById('tx-desc').value   = tx ? tx.desc : '';
+  document.getElementById('tx-amount').value = tx ? tx.amount : '';
+  document.getElementById('tx-date').value   = tx ? tx.date : todayStr();
+  if (tx) populateCatSelect('tx-cat', tx.type);
+  if (tx) document.getElementById('tx-cat').value = tx.cat;
+
   const installCheck = document.getElementById('tx-is-installment');
   if (installCheck) installCheck.checked = false;
   const installWrap = document.getElementById('tx-installment-wrap');
   if (installWrap) installWrap.style.display = 'none';
   const installNum = document.getElementById('tx-installments');
   if (installNum) installNum.value = '';
+
+  document.querySelector('#addModal .modal-title').textContent = id ? 'Editar transação' : 'Nova transação';
   document.getElementById('addModal').classList.add('open');
 }
 
@@ -472,7 +486,14 @@ function saveTransaction() {
 
   if (!desc || !amount || amount <= 0 || !cat || !date) { showToast('Preencha todos os campos'); return; }
 
-  if (isInstall && numInstall >= 2) {
+  if (editingTxId) {
+    const idx = state.transactions.findIndex(t => t.id === editingTxId);
+    if (idx >= 0) {
+      state.transactions[idx] = { ...state.transactions[idx], type: currentType, desc, amount, cat, date };
+    }
+    editingTxId = null;
+    showToast('Transação atualizada');
+  } else if (isInstall && numInstall >= 2) {
     const baseDate = new Date(date + 'T00:00:00');
     const parcela  = Math.round((amount / numInstall) * 100) / 100;
     for (let i = 0; i < numInstall; i++) {
@@ -1197,6 +1218,9 @@ function txHTML(t) {
       <div class="tx-meta">${cat.label} · ${d}</div>
     </div>
     <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '−'}${fmt(t.amount)}</div>
+    <button class="tx-edit" onclick="openAddModal('${t.id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </button>
     <button class="tx-delete" onclick="deleteTransaction('${t.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
   </li>`;
 }
@@ -1231,10 +1255,12 @@ function renderTransactions() {
   const type  = document.getElementById('filterType').value;
   const cat   = document.getElementById('filterCat').value;
   const month = document.getElementById('filterMonth').value;
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
   let txs = state.transactions || [];
   if (type)  txs = txs.filter(t => t.type === type);
   if (cat)   txs = txs.filter(t => t.cat  === cat);
   if (month) txs = txs.filter(t => t.date.startsWith(month));
+  if (search) txs = txs.filter(t => t.desc.toLowerCase().includes(search) || getCatInfo(t.cat).label.toLowerCase().includes(search));
   document.getElementById('allTxList').innerHTML = txs.length
     ? txs.map(txHTML).join('')
     : '<div class="empty"><div class="empty-icon">🔍</div>Nenhuma transação encontrada</div>';
@@ -1397,6 +1423,59 @@ function renderCategoryLists() {
     document.getElementById(listId).innerHTML = [...defaults, ...customs].join('') ||
       '<div class="empty" style="padding:1rem">Nenhuma categoria</div>';
   });
+}
+
+// ── Onboarding ──────────────────────────────────────────────────────────────
+
+function checkOnboarding() {
+  if (!state.onboardingDone) {
+    document.getElementById('onboardingModal').classList.add('open');
+  }
+}
+
+function dismissOnboarding() {
+  document.getElementById('onboardingModal').classList.remove('open');
+  state.onboardingDone = true;
+  saveData();
+}
+
+// ── Notificações ─────────────────────────────────────────────────────────────
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    checkAndNotify();
+  } else if (Notification.permission !== 'denied') {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') checkAndNotify();
+  }
+}
+
+function checkAndNotify() {
+  if (Notification.permission !== 'granted') return;
+  const today   = new Date(); today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today.getTime() + 86400000);
+
+  (state.recurringTransactions || [])
+    .filter(r => r.active)
+    .forEach(r => {
+      const next = getNextDueDate(r, today);
+      if (!next) return;
+      const diff = Math.round((next - today) / 86400000);
+      if (diff === 0) {
+        new Notification('GiWallet — Vencimento hoje', {
+          body: `${r.desc}: ${fmt(r.amount)}`,
+          icon: './icon-192.png',
+          tag: 'giwallet-' + r.id,
+        });
+      } else if (diff === 1) {
+        new Notification('GiWallet — Vence amanhã', {
+          body: `${r.desc}: ${fmt(r.amount)}`,
+          icon: './icon-192.png',
+          tag: 'giwallet-' + r.id + '-tomorrow',
+        });
+      }
+    });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

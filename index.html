@@ -116,6 +116,13 @@
     <div class="user-menu-email" id="menuUserEmail"></div>
   </div>
   <hr class="menu-divider">
+  <button class="user-menu-item" id="notifBtn" onclick="requestNotificationPermission()">
+    <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+    Ativar notificações
+  </button>
   <button class="user-menu-item" onclick="toggleTheme()">
     <svg class="menu-icon" id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -233,6 +240,10 @@
           <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Exportar CSV</button>
           <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Adicionar</button>
         </div>
+      </div>
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Buscar transações..." oninput="renderTransactions()">
       </div>
       <div class="filter-bar">
         <select id="filterType" onchange="renderTransactions()">
@@ -486,6 +497,46 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('categoryModal')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveCustomCategory()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Onboarding -->
+<div class="modal-overlay" id="onboardingModal">
+  <div class="modal modal-onboarding">
+    <div class="onboard-header">
+      <img src="icon-192.png" alt="GiWallet" style="width:60px;height:60px;border-radius:16px;margin-bottom:12px">
+      <h2 class="onboard-title">Bem-vindo ao GiWallet</h2>
+      <p class="onboard-sub">Tudo que você precisa para controlar suas finanças</p>
+    </div>
+    <div class="onboard-steps">
+      <div class="onboard-step">
+        <div class="onboard-step-icon" style="background:var(--green-bg);color:var(--green)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div><div class="onboard-step-title">Registre transações</div><div class="onboard-step-desc">Adicione receitas e despesas com categoria e data</div></div>
+      </div>
+      <div class="onboard-step">
+        <div class="onboard-step-icon" style="background:var(--blue-bg);color:var(--blue)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        </div>
+        <div><div class="onboard-step-title">Defina orçamentos</div><div class="onboard-step-desc">Controle quanto pode gastar por categoria</div></div>
+      </div>
+      <div class="onboard-step">
+        <div class="onboard-step-icon" style="background:var(--purple-bg);color:var(--purple)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div><div class="onboard-step-title">Crie metas</div><div class="onboard-step-desc">Acompanhe seus objetivos financeiros</div></div>
+      </div>
+      <div class="onboard-step">
+        <div class="onboard-step-icon" style="background:var(--amber-bg);color:var(--amber)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div><div class="onboard-step-title">Sincronizado em tempo real</div><div class="onboard-step-desc">Seus dados ficam seguros e atualizados em todos os dispositivos</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-full" onclick="dismissOnboarding()" style="margin-bottom:0">Começar agora</button>
     </div>
   </div>
 </div>
